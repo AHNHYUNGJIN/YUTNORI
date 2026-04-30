@@ -1,0 +1,2 @@
+@import "tailwindcss";
+:root{font-family:ui-rounded,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;color:#172554;background:#fff7ed}body{margin:0;min-width:320px}.dark{color:#eff6ff;background:#020617}button:focus-visible,[role=button]:focus-visible{outline:4px solid #facc15;outline-offset:3px}.safe-bottom{padding-bottom:env(safe-area-inset-bottom)}

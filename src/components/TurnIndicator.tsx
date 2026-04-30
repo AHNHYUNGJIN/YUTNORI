@@ -1,0 +1,2 @@
+import type { PlayerState, PlayerId } from '../domain/types';
+export function TurnIndicator({ players, currentPlayer, message }:{players:PlayerState[]; currentPlayer:PlayerId; message:string}){const p=players.find(x=>x.id===currentPlayer)!;return <header className="rounded-3xl bg-blue-700 p-4 text-white shadow-xl"><p className="text-sm font-bold opacity-90">현재 차례</p><h1 className="text-2xl font-black">{p.name} {p.isAi?'🤖':'👨‍👩‍👧'}</h1><p aria-live="polite" className="mt-2 rounded-2xl bg-white/15 p-2 text-lg font-bold">{message}</p></header>}
