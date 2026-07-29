@@ -1,44 +1,88 @@
 import type { BoardNode, Position } from './types';
 
-const xy = (id:number,x:number,y:number,label:string,kind:BoardNode['kind']='edge',next:number[]=[]):BoardNode=>({id,x,y,label,kind,next});
+// 전통 윷판 29밭.
+// 바깥 둘레 20밭: 0(참먹이·출발/도착, 오른쪽 아래) → 시계 반대 방향으로 1~19.
+//   모서리: 5(오른쪽 위) · 10(왼쪽 위) · 15(왼쪽 아래)
+// 지름길: 5 → 20 → 21 → 22(방) → 23 → 24 → 15
+//         10 → 25 → 26 → 22(방) → 27 → 28 → 0
+// 지름길은 모서리·방에 "멈춘" 다음 차례에만 진입할 수 있다(전통 규칙).
+export const START = 0;
+export const CENTER = 22;
+
+const N = (id: number, x: number, y: number, label: string, kind: BoardNode['kind']): BoardNode => ({ id, x, y, label, kind });
 export const BOARD_NODES: BoardNode[] = [
-  xy(1,90,90,'출발','corner',[2]),xy(2,70,90,'2'),xy(3,50,90,'3'),xy(4,30,90,'4'),xy(5,10,90,'서쪽','corner',[6,21]),
-  xy(6,10,70,'6'),xy(7,10,50,'7'),xy(8,10,30,'8'),xy(9,10,10,'9'),xy(10,30,10,'북쪽','corner',[11,25]),
-  xy(11,50,10,'11'),xy(12,70,10,'12'),xy(13,90,10,'13'),xy(14,90,30,'14'),xy(15,90,50,'동쪽','corner',[16]),
-  xy(16,90,70,'16'),xy(17,90,90,'17'),xy(18,70,90,'18'),xy(19,50,90,'19'),xy(20,30,90,'도착길','corner',[]),
-  xy(21,25,75,'지름1','shortcut',[22]),xy(22,40,60,'가운데','center',[23,26]),xy(23,55,45,'지름3','shortcut',[24]),xy(24,70,30,'지름4','shortcut',[15]),
-  xy(25,45,25,'지름A','shortcut',[22]),xy(26,55,65,'지름B','shortcut',[27]),xy(27,70,80,'지름C','shortcut',[20]),xy(28,50,50,'마당','center',[23,26]),
-].map(n=> n.next.length ? n : ({...n,next:n.id<20 ? [n.id+1] : []}));
-export const FINISH_AFTER = 20;
-export const nodeById = (id:number) => BOARD_NODES.find(n=>n.id===id);
-export const isBoardPosition = (p:Position): p is number => typeof p === 'number';
-export const distanceToHome = (p:Position): number => {
-  if (p === 'HOME') return 0; if (p === 'BASE') return 21;
-  const seen = new Set<number>(); let frontier:[number,number][] = [[p,0]];
-  while(frontier.length){const [id,d]=frontier.shift()!; if(id>=FINISH_AFTER) return d+1; if(seen.has(id)) continue; seen.add(id); for(const nx of nodeById(id)?.next ?? []) frontier.push([nx,d+1]);}
-  return 30;
+  N(0, 90, 90, '출발', 'start'),
+  N(1, 90, 74, '', 'edge'), N(2, 90, 58, '', 'edge'), N(3, 90, 42, '', 'edge'), N(4, 90, 26, '', 'edge'),
+  N(5, 90, 10, '', 'corner'),
+  N(6, 74, 10, '', 'edge'), N(7, 58, 10, '', 'edge'), N(8, 42, 10, '', 'edge'), N(9, 26, 10, '', 'edge'),
+  N(10, 10, 10, '', 'corner'),
+  N(11, 10, 26, '', 'edge'), N(12, 10, 42, '', 'edge'), N(13, 10, 58, '', 'edge'), N(14, 10, 74, '', 'edge'),
+  N(15, 10, 90, '', 'corner'),
+  N(16, 26, 90, '', 'edge'), N(17, 42, 90, '', 'edge'), N(18, 58, 90, '', 'edge'), N(19, 74, 90, '', 'edge'),
+  N(20, 76.7, 23.3, '', 'shortcut'), N(21, 63.3, 36.7, '', 'shortcut'),
+  N(22, 50, 50, '방', 'center'),
+  N(23, 36.7, 63.3, '', 'shortcut'), N(24, 23.3, 76.7, '', 'shortcut'),
+  N(25, 23.3, 23.3, '', 'shortcut'), N(26, 36.7, 36.7, '', 'shortcut'),
+  N(27, 63.3, 63.3, '', 'shortcut'), N(28, 76.7, 76.7, '', 'shortcut'),
+];
+export const nodeById = (id: number) => BOARD_NODES[id];
+
+// 갈림길이 없을 때의 기본 다음 밭
+const NEXT: Record<number, number> = {
+  1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7, 7: 8, 8: 9, 9: 10, 10: 11,
+  11: 12, 12: 13, 13: 14, 14: 15, 15: 16, 16: 17, 17: 18, 18: 19, 19: 0,
+  20: 21, 21: 22, 22: 27, 23: 24, 24: 15, 25: 26, 26: 22, 27: 28, 28: 0,
 };
-export const boardPathFor = (from:Position, steps:number): number[] => {
-  if (from === 'HOME') return [];
-  if (steps === 0) return typeof from === 'number' ? [from] : [];
-  if (steps < 0) return reversePath(from, Math.abs(steps));
-  let paths: number[][] = from === 'BASE' ? [[1]] : [[from as number]];
-  let remaining = from === 'BASE' ? steps - 1 : steps;
+
+type Step = number | 'HOME';
+// 모서리 지름길은 그 밭에서 "출발"할 때만, 방(22)은 5번 지름길로 지나칠 때 직진(23) 유지
+const nextOnPath = (node: number, prev: number | undefined, isMoveStart: boolean): Step => {
+  if (node === START) return 'HOME';
+  if (node === 5 && isMoveStart) return 20;
+  if (node === 10 && isMoveStart) return 25;
+  if (node === CENTER && !isMoveStart && prev === 21) return 23;
+  return NEXT[node];
+};
+
+export interface PathResult { path: number[]; to: Position; }
+/** from에서 steps칸 전진했을 때 지나는 밭과 도착지. 참먹이(0)를 지나면 HOME. */
+export const forwardPath = (from: Position, steps: number): PathResult | undefined => {
+  if (from === 'HOME' || steps <= 0) return undefined;
+  const path: number[] = [];
+  let prev: number | undefined;
+  let current: number;
+  let remaining = steps;
+  let isMoveStart = from !== 'BASE';
+  if (from === 'BASE') { current = 1; path.push(1); remaining -= 1; }
+  else current = from;
   while (remaining > 0) {
-    paths = paths.flatMap(path => {
-      const last = path[path.length-1];
-      if (last >= FINISH_AFTER) return [path];
-      const nexts = nodeById(last)?.next ?? [];
-      return nexts.length ? nexts.map(n=>[...path,n]) : [path];
-    });
-    remaining--;
+    const nx = nextOnPath(current, prev, isMoveStart);
+    isMoveStart = false;
+    if (nx === 'HOME') return { path, to: 'HOME' };
+    prev = current;
+    current = nx;
+    path.push(nx);
+    remaining -= 1;
   }
-  return paths.sort((a,b)=>distanceToHome(a[a.length-1])-distanceToHome(b[b.length-1]))[0] ?? [];
+  return { path, to: current };
 };
-const reversePath = (from:Position, steps:number): number[] => {
-  if (from === 'BASE' || from === 'HOME') return [];
-  const prev = new Map<number,number[]>(); BOARD_NODES.forEach(n=>n.next.forEach(nx=>prev.set(nx,[...(prev.get(nx)??[]),n.id])));
-  let current = from; const path:number[]=[];
-  for(let i=0;i<steps;i++){const p=(prev.get(current as number)??[]).sort((a,b)=>b-a)[0]; if(!p) break; current=p; path.push(p);} return path;
+
+// 남은 최단 거리(모서리·방에 멈춰 지름길을 탄다고 가정) — AI 평가용
+const branchSuccessors = (node: number): Step[] => {
+  if (node === START) return ['HOME'];
+  if (node === 5) return [6, 20];
+  if (node === 10) return [11, 25];
+  if (node === CENTER) return [23, 27];
+  return [NEXT[node]];
 };
-export const destinationFromPath = (path:number[]): Position => path.length === 0 ? 'BASE' : path[path.length-1] >= FINISH_AFTER ? 'HOME' : path[path.length-1];
+const DIST: number[] = (() => {
+  const d = new Array<number>(29).fill(99);
+  for (let iter = 0; iter < 40; iter += 1) {
+    for (let n = 0; n < 29; n += 1) {
+      const best = Math.min(...branchSuccessors(n).map((s) => (s === 'HOME' ? 0 : d[s])));
+      d[n] = Math.min(d[n], 1 + best);
+    }
+  }
+  return d;
+})();
+export const distanceToHome = (p: Position): number => (p === 'HOME' ? 0 : p === 'BASE' ? 1 + DIST[1] : DIST[p]);

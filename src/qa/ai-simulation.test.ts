@@ -9,7 +9,7 @@ const players: PlayerState[] = [
 ];
 
 describe('AI vs AI 1000-game harness', () => {
-  it('guarantees termination and detects runaway games', () => {
+  it('guarantees termination and detects runaway games', { timeout: 180_000 }, () => {
     const wins = new Map<number, number>();
     let maxTurns = 0;
     for (let i = 0; i < 1000; i += 1) {

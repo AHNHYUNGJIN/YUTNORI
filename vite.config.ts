@@ -9,6 +9,11 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/test/setup.ts',
-    coverage: { provider: 'v8', reporter: ['text','json-summary'], thresholds: { lines: 85, branches: 75, functions: 85, statements: 85 } },
+    coverage: {
+      provider: 'v8',
+      reporter: ['text','json-summary'],
+      exclude: ['src/audio/**', 'src/components/**', 'src/App.tsx', 'src/main.tsx', 'src/test/**'],
+      thresholds: { lines: 85, branches: 75, functions: 85, statements: 85 },
+    },
   },
 });

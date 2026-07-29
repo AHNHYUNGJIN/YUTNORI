@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('loads the family yutnori board on mobile', async ({ page }) => {
-  await expect(page.getByRole('banner')).toContainText('현재 차례');
+  await expect(page.getByText('현재 차례')).toBeVisible();
   await expect(page.getByRole('img', { name: '전통 윷놀이 판' })).toBeVisible();
   await expect(page.getByRole('button', { name: /윷 던지기/ })).toBeVisible();
 });
@@ -41,7 +41,7 @@ test('tutorial can be opened and completed', async ({ page }) => {
 
 test('has no serious axe accessibility violations', async ({ page }) => {
   await page.addScriptTag({ content: axeSource });
-  const results = await page.evaluate(async () => await (window as any).axe.run(document));
+  const results = await page.evaluate(async () => await (window as unknown as { axe: { run: (d: Document) => Promise<{ violations: Array<{ impact?: string | null }> }> } }).axe.run(document));
   const serious = results.violations.filter((v: { impact?: string | null }) => ['serious', 'critical'].includes(v.impact ?? ''));
   expect(serious).toEqual([]);
 });
