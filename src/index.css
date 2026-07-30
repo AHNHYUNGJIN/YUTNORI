@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
-:root{font-family:"Jua",ui-rounded,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;color:#172554;background:#fff7ed}
-body{margin:0;min-width:320px}
-.dark{color:#eff6ff;background:#020617}
+/* 가독성: 본문은 Noto Sans KR, 제목·숫자·연출용은 Jua(.font-display) */
+:root{font-family:"Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;color:#0f1e46;background:#fff7ed}
+body{margin:0;min-width:320px;-webkit-font-smoothing:antialiased}
+.font-display{font-family:"Jua","Noto Sans KR",sans-serif;letter-spacing:.01em}
+.dark{color:#f1f5f9;background:#020617}
 button:focus-visible,[role=button]:focus-visible{outline:4px solid #facc15;outline-offset:3px}
 .safe-bottom{padding-bottom:env(safe-area-inset-bottom)}
 
@@ -16,19 +18,23 @@ button:focus-visible,[role=button]:focus-visible{outline:4px solid #facc15;outli
   radial-gradient(900px 520px at -8% 108%, rgba(168,85,247,.16), transparent 55%),
   linear-gradient(135deg,#0f172a,#1e1b4b)}
 
-/* 윷판 3D 무대 */
-.board-stage{perspective:1300px}
-.board-3d{transform:rotateX(16deg);transform-style:preserve-3d;transition:transform .45s ease;
-  filter:drop-shadow(0 26px 20px rgba(120,53,15,.38))}
-.board-stage:hover .board-3d{transform:rotateX(11deg)}
-.dark .board-3d{filter:drop-shadow(0 26px 22px rgba(0,0,0,.55))}
-@media (max-width:640px){.board-3d{transform:rotateX(9deg)}.board-stage:hover .board-3d{transform:rotateX(9deg)}}
+/* 윷판 3D 무대 — 글자 가독성을 위해 기울기는 완만하게 */
+.board-stage{perspective:1400px}
+.board-3d{transform:rotateX(10deg);transform-style:preserve-3d;transition:transform .45s ease;
+  filter:drop-shadow(0 22px 18px rgba(120,53,15,.35))}
+.board-stage:hover .board-3d{transform:rotateX(5deg)}
+.dark .board-3d{filter:drop-shadow(0 22px 20px rgba(0,0,0,.55))}
+@media (max-width:640px){.board-3d{transform:rotateX(6deg)}.board-stage:hover .board-3d{transform:rotateX(6deg)}}
 
 /* 입체 버튼 */
 .btn-3d{transition:transform .08s ease,box-shadow .08s ease}
 .btn-3d:active:not(:disabled){transform:translateY(3px)}
 
-/* 유리 패널 */
-.panel{background:rgba(255,255,255,.86);backdrop-filter:blur(10px);
-  border:1px solid rgba(255,255,255,.65);box-shadow:0 18px 34px rgba(30,58,138,.16)}
-.dark .panel{background:rgba(30,41,59,.86);border-color:rgba(71,85,105,.6);box-shadow:0 18px 34px rgba(0,0,0,.45)}
+/* 카드 패널 — 대비 확보를 위해 불투명도 높게 */
+.panel{background:rgba(255,255,255,.94);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.7);box-shadow:0 18px 34px rgba(30,58,138,.16)}
+.dark .panel{background:rgba(15,23,42,.92);border-color:rgba(71,85,105,.6);box-shadow:0 18px 34px rgba(0,0,0,.5)}
+
+/* 승리 꽃가루 */
+@keyframes confetti-fall{0%{transform:translateY(-30px) rotate(0deg);opacity:1}90%{opacity:1}100%{transform:translateY(105vh) rotate(560deg);opacity:0}}
+.confetti{position:absolute;top:-24px;width:10px;height:15px;border-radius:3px;animation:confetti-fall 3s linear infinite;pointer-events:none}

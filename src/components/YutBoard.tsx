@@ -72,6 +72,12 @@ export function YutBoard({ pawns, players, moves, selectedPawn, onPawnSelect, on
 
       {/* 나무판 */}
       <rect x="-8" y="-8" width="116" height="116" rx="10" fill="url(#wood)" />
+      <g opacity=".09" stroke="#4a2008" fill="none" strokeWidth=".8" aria-hidden>
+        <path d="M-8 16 C 24 11, 66 20, 108 13" />
+        <path d="M-8 44 C 30 39, 70 49, 108 42" />
+        <path d="M-8 72 C 26 66, 64 76, 108 70" />
+        <path d="M-8 96 C 34 91, 72 100, 108 94" />
+      </g>
       <rect x="-8" y="-8" width="116" height="116" rx="10" fill="none" stroke="#6b3a12" strokeWidth="1.8" opacity=".85" />
       <rect x="-4.5" y="-4.5" width="109" height="109" rx="7" fill="none" stroke="#8a4b1f" strokeWidth=".7" opacity=".55" />
 
@@ -87,7 +93,8 @@ export function YutBoard({ pawns, players, moves, selectedPawn, onPawnSelect, on
           <circle cx={n.x} cy={n.y + 0.7} r={big ? 4.7 : 3} fill="#6b3a12" opacity=".35" />
           <circle cx={n.x} cy={n.y} r={big ? 4.6 : 2.9} fill="url(#station)" stroke="#8a4b1f" strokeWidth="1" filter="url(#soft)" />
           {big && <circle cx={n.x} cy={n.y} r={2.6} fill="none" stroke="#8a4b1f" strokeWidth="0.7" opacity=".8" />}
-          {n.label && <text x={n.x} y={n.y + (n.kind === 'start' ? 8.8 : -6)} textAnchor="middle" fontSize="3.6" fontWeight="700" fill="#4a2008">{n.label}</text>}
+          {n.label && <text x={n.x} y={n.y + (n.kind === 'start' ? 9.2 : -6.2)} textAnchor="middle" fontSize="4.4" fontWeight="900" fill="#3b1c04"
+            stroke="#fff3d9" strokeWidth="1" style={{ paintOrder: 'stroke' }}>{n.label}</text>}
         </g>;
       })}
 
@@ -109,7 +116,8 @@ export function YutBoard({ pawns, players, moves, selectedPawn, onPawnSelect, on
           className="cursor-pointer">
           <motion.circle cx={n.x} cy={n.y} r={5.4} animate={{ r: [5.2, 6.5, 5.2] }} transition={{ repeat: Infinity, duration: 1.1 }}
             fill="url(#gold)" stroke="#a16207" strokeWidth="1.1" filter="url(#glow)" opacity=".92" />
-          <text x={n.x} y={n.y - 6.6} textAnchor="middle" fontSize="3.8" fontWeight="800" fill="#3b1c04">{m.result.name}</text>
+          <text x={n.x} y={n.y - 6.8} textAnchor="middle" fontSize="4.4" fontWeight="900" fill="#7f1d1d"
+            stroke="#fffbe8" strokeWidth="1.1" style={{ paintOrder: 'stroke' }}>{m.result.name}</text>
         </g>;
       })}
       {homeTarget && <g role="button" tabIndex={0} aria-label="골인하기" className="cursor-pointer"
@@ -117,7 +125,8 @@ export function YutBoard({ pawns, players, moves, selectedPawn, onPawnSelect, on
         onKeyDown={(e) => { if (e.key === 'Enter') onDestinationSelect?.('HOME'); }}>
         <motion.circle cx={99.5} cy={99.5} r={6} animate={{ r: [5.6, 7, 5.6] }} transition={{ repeat: Infinity, duration: 1.1 }}
           fill="url(#gold)" stroke="#a16207" strokeWidth="1.1" filter="url(#glow)" />
-        <text x={99.5} y={100.9} textAnchor="middle" fontSize="3.5" fontWeight="900" fill="#3b1c04">골인</text>
+        <text x={99.5} y={100.9} textAnchor="middle" fontSize="3.6" fontWeight="900" fill="#3b1c04"
+          stroke="#fffbe8" strokeWidth=".9" style={{ paintOrder: 'stroke' }}>골인</text>
       </g>}
 
       {/* 말 토큰 — 광택 있는 구슬 */}
