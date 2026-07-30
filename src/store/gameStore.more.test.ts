@@ -22,14 +22,25 @@ describe('game store actions', () => {
     rng.mockRestore();
   });
 
-  it('applies a single-option move immediately and passes the turn', () => {
+  it('always requires tapping the destination to confirm a move', () => {
     useGameStore.setState({ game: applyRoll(useGameStore.getState().game, resultFromSteps(1)) });
     useGameStore.getState().selectPawn(0);
+    expect(useGameStore.getState().selectedPawn).toBeDefined();
+    expect(useGameStore.getState().game.pawns[0].position).toBe('BASE');
+    useGameStore.getState().selectDestination(1);
     vi.runAllTimers();
     const { game } = useGameStore.getState();
     expect(game.pawns[0].position).toBe(1);
     expect(game.currentPlayer).toBe(1);
     expect(game.throwsLeft).toBe(1);
+  });
+
+  it('toggles the selection off when tapping the same pawn again', () => {
+    useGameStore.setState({ game: applyRoll(useGameStore.getState().game, resultFromSteps(1)) });
+    useGameStore.getState().selectPawn(0);
+    expect(useGameStore.getState().selectedPawn).toBeDefined();
+    useGameStore.getState().selectPawn(0);
+    expect(useGameStore.getState().selectedPawn).toBeUndefined();
   });
 
   it('offers a destination choice when several rolls are pending', () => {

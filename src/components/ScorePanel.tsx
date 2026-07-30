@@ -10,7 +10,7 @@ interface Props {
 
 /** 점수판 + 대기 말 트레이. 대기(BASE) 말은 여기서 눌러 출발시킨다. */
 export function ScorePanel({ players, pawns, currentPlayer, movablePawnIds, onPawnSelect }: Props) {
-  return <aside className="rounded-3xl bg-white p-4 shadow-lg dark:bg-slate-800">
+  return <aside className="panel rounded-3xl p-4">
     <h2 className="mb-3 text-xl font-black">가족 점수판</h2>
     <div className="space-y-2">
       {players.map((pl) => {
@@ -39,8 +39,8 @@ export function ScorePanel({ players, pawns, currentPlayer, movablePawnIds, onPa
                 aria-label={`${pl.name} 대기 말 출발시키기`}
                 disabled={!movable}
                 onClick={() => onPawnSelect?.(p.id)}
-                className={`h-7 w-7 rounded-full border-2 border-white shadow transition ${movable ? 'animate-pulse ring-2 ring-yellow-400 hover:scale-110' : 'opacity-70'}`}
-                style={{ backgroundColor: pl.color }} />;
+                className={`h-7 w-7 rounded-full border-2 border-white transition ${movable ? 'animate-pulse ring-2 ring-yellow-400 hover:scale-110' : 'opacity-70'}`}
+                style={{ background: `radial-gradient(circle at 35% 28%, rgba(255,255,255,.75), ${pl.color} 55%, rgba(0,0,0,.35))`, boxShadow: '0 3px 5px rgba(0,0,0,.35)' }} />;
             })}
             <span className="ml-auto text-base" role="img" aria-label={`도착한 말 ${home}개`}>{'⭐'.repeat(home)}</span>
           </div>

@@ -99,8 +99,14 @@ export const useGameStore = create<Store>((set, get) => ({
       return;
     }
     playSfx('select');
-    if (options.length === 1) { get().applySelected(options[0]); return; }
-    set({ selectedPawn: options[0].pawnId, game: { ...game, message: '노란 도착 칸을 눌러 이동할 곳을 고르세요.' } });
+    const leaderId = options[0].pawnId;
+    // 같은 말을 다시 누르면 선택 취소
+    if (get().selectedPawn === leaderId) {
+      set({ selectedPawn: undefined, game: { ...game, message: '선택을 취소했어요. 움직일 말을 골라 주세요.' } });
+      return;
+    }
+    const hint = options.length > 1 ? '노란 도착 칸을 눌러 이동할 곳을 고르세요.' : '노란 도착 칸을 눌러 이동을 확정하세요.';
+    set({ selectedPawn: leaderId, game: { ...game, message: hint } });
   },
 
   selectDestination: (to) => {
